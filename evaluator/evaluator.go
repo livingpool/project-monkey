@@ -10,6 +10,7 @@ import (
 // every time we encounter a true or false
 // i think this is kinda like git's tree!
 var (
+	NULL  = &object.Null{}
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
 )
