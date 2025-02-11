@@ -28,6 +28,9 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.PrefixExpression:
+		right := Eval(node.Right)
+		return evalPrefixExpression(node.Operator, right)
 	}
 
 	return nil
@@ -48,4 +51,47 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 		return TRUE
 	}
 	return FALSE
+}
+
+func evalPrefixExpression(operator string, right object.Object) object.Object {
+	switch operator {
+	case "!":
+		return evalBangOperatorExpression(right)
+	case "-":
+		return evalMinusPrefixOperatorExpression(right)
+	default:
+		return NULL
+	}
+}
+
+// note that booleans are negated bcos we wanna return !right
+func evalBangOperatorExpression(right object.Object) object.Object {
+	switch right := right.(type) {
+	case *object.Boolean:
+		if right == TRUE {
+			return FALSE
+		} else {
+			return TRUE
+		}
+	case *object.Integer:
+		if right.Value == 0 {
+			return TRUE
+		} else {
+			return FALSE
+		}
+	case *object.Null:
+		return TRUE
+	default: // unhandled object
+		return FALSE
+	}
+}
+
+// TODO: handle -- operator
+func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
+	if right.Type() != object.INTEGER_OBJ {
+		return NULL
+	}
+
+	value := right.(*object.Integer).Value
+	return &object.Integer{Value: -value}
 }
