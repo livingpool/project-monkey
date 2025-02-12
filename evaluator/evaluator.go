@@ -22,6 +22,8 @@ func Eval(node ast.Node) object.Object {
 		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
 
 	// expressions
 	case *ast.IntegerLiteral:
@@ -35,6 +37,8 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	}
 
 	return nil
@@ -78,7 +82,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 		}
 	case *object.Null:
 		return TRUE
-	default: // unhandled object
+	default: // unhandled object type
 		return FALSE
 	}
 }
@@ -135,9 +139,38 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	}
 }
 
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := Eval(ie.Condition)
+	if isTruthy(condition) {
+		return Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
 	if input {
 		return TRUE
 	}
 	return FALSE
+}
+
+// note my design decision slightly deviates from the book
+func isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case *object.Integer:
+		if obj.Value != 0 {
+			return true
+		} else {
+			return false
+		}
+	case *object.Boolean:
+		return obj.Value
+	case *object.Null:
+		return false
+	default: // unhandled object type
+		return false
+	}
 }
