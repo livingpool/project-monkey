@@ -288,6 +288,19 @@ addTwo(2);`
 	testIntegerObject(t, testEval(t, input), 4)
 }
 
+func TestStringLiteral(t *testing.T) {
+	input := `"Hello world!"`
+
+	evaluated := testEval(t, input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (+%v)", evaluated, evaluated)
+	}
+	if str.Value != "Hello world!" {
+		t.Errorf("String has wrong value. got=%q", str.Value)
+	}
+}
+
 func testEval(t *testing.T, input string) object.Object {
 	t.Helper()
 

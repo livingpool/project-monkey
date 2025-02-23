@@ -12,8 +12,9 @@ const (
 	EOF     = "EOF" // tell the parser that it can stop
 
 	// Identifiers + literals
-	IDENT = "IDENT" // user-defined identifiers: add, foobar, x, y, ...
-	INT   = "INT"
+	IDENT  = "IDENT" // user-defined identifiers: add, foobar, x, y, ...
+	INT    = "INT"
+	STRING = "STRING"
 
 	// Operators
 	ASSIGN   = "="

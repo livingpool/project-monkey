@@ -61,9 +61,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case 0:
-		tok.Literal = ""
 		tok.Type = token.EOF
+		tok.Literal = ""
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
@@ -117,6 +120,19 @@ func (l *Lexer) readNumber() string {
 	return l.input[position:l.position]
 }
 
+// TODO: report an error when there is no enclosing double quote
+// TODO: support \", \t, \n...
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[position:l.position]
+}
+
 func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
@@ -127,7 +143,6 @@ func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
-// monkey only supports integers for now
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
