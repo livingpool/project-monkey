@@ -22,7 +22,7 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
-	"puts": { // TODO: returns a NULL so the REPL prints it out; i dont want that
+	"puts": {
 		Fn: func(args ...object.Object) object.Object {
 			for _, arg := range args {
 				fmt.Println(arg.Inspect())
